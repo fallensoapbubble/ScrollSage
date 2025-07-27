@@ -8,11 +8,15 @@ import os
 from datetime import datetime
 
 
+import os
+from dotenv import load_dotenv
 
+load_dotenv()  # Loads variables from .env into environment
+qloo_key = os.getenv("QLOO_API_KEY")
 
 
 class EntityInsightsGenerator:
-    def __init__(self, gemini_api_key: str, qloo_api_key: str = "wcID9DQahw8lkq2Bs_e28DVBrXANZ6X5hDxirZUbtb4"):
+    def __init__(self, gemini_api_key: str, qloo_api_key: str =qloo_key):
         """
         Initialize the insights generator with API keys
         """
@@ -228,10 +232,10 @@ def calltoAPI(obj):
     print("needed", obj)
     print("="*50)
     
-    GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', 'AIzaSyCOpoQvsNT6ylEd87-lY7-_b2YeiMfyaws')
+    GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
     
     try:
-        generator = EntityInsightsGenerator(GEMINI_API_KEY)
+        generator = EntityInsightsGenerator(GEM_KEY)
         insights = generator.generate_insights(obj)
         
         print("Generated Insights:")
