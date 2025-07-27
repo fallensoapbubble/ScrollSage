@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScrollSage - Decode Your Media Culture</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'neon-pink': '#ff6b9d',
+                        'neon-blue': '#4ecdc4',
+                        'neon-purple': '#a855f7',
+                        'neon-green': '#10b981',
+                        'glass': 'rgba(255, 255, 255, 0.1)',
+                        'glass-dark': 'rgba(0, 0, 0, 0.1)'
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'float-2': 'float 8s ease-in-out infinite reverse',
+                        'float-3': 'float 7s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                        'fade-in': 'fadeIn 0.8s ease-out',
+                        'slide-up': 'slideUp 0.6s ease-out'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(2deg); }
+        }
+        
+        @keyframes glow {
+            from { box-shadow: 0 0 20px rgba(255, 107, 157, 0.3); }
+            to { box-shadow: 0 0 30px rgba(255, 107, 157, 0.6); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .glass-card {
+            backdrop-filter: blur(20px);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .neon-border {
+            box-shadow: 
+                0 0 20px rgba(255, 107, 157, 0.3),
+                inset 0 0 20px rgba(255, 107, 157, 0.1);
+        }
+        
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            background: linear-gradient(45deg, rgba(255, 107, 157, 0.1), rgba(78, 205, 196, 0.1));
+            animation: float 8s ease-in-out infinite;
+        }
+        
+        .bubble:nth-child(1) { width: 80px; height: 80px; top: 10%; left: 10%; animation-delay: 0s; }
+        .bubble:nth-child(2) { width: 120px; height: 120px; top: 20%; right: 15%; animation-delay: 2s; }
+        .bubble:nth-child(3) { width: 60px; height: 60px; bottom: 20%; left: 20%; animation-delay: 4s; }
+        .bubble:nth-child(4) { width: 100px; height: 100px; bottom: 10%; right: 10%; animation-delay: 6s; }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(255, 107, 157, 0.3);
+        }
+        
+        .insight-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .insight-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .insight-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+        
+        .insight-description {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body class="gradient-bg overflow-x-hidden">
+    <!-- Floating bubbles background -->
+    <div class="fixed inset-0 pointer-events-none">
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+    </div>
+
+    <div class="container mx-auto px-4 py-8 relative z-10">
+        <!-- Header -->
+        <div class="text-center mb-12 animate-fade-in">
+            <h1 class="text-6xl font-bold text-white mb-4 bg-gradient-to-r from-neon-pink to-neon-blue bg-clip-text text-transparent">
+                ScrollSage
+            </h1>
+            <p class="text-xl text-white/80 max-w-2xl mx-auto">
+                Decode your media culture clusters and discover the hidden narratives behind your digital taste
+            </p>
+        </div>
+
+        <!-- Input Form -->
+        <div id="input-section" class="max-w-4xl mx-auto mb-12">
+            <div class="glass-card rounded-3xl p-8 neon-border animate-fade-in">
+                <h2 class="text-3xl font-bold text-white mb-6 text-center">Share Your Taste Seeds</h2>
+                <p class="text-white/70 text-center mb-8">
+                    Add 2-5 influencers, brands, or media you engage with to analyze your cultural positioning
+                </p>
+                
+                <form method="post" id="taste-form" class="space-y-6" action="{{ url_for('index') }}">
+                    <div id="entities-container" class="space-y-4">
+                        <!-- Entity inputs will be added here -->
+                    </div>
+                    
+                    <div class="flex justify-center">
+                        <button type="button" id="add-entity" class="bg-gradient-to-r from-neon-pink to-neon-purple text-white px-6 py-3 rounded-full font-semibold hover:scale-105 transition-transform">
+                            + Add Another
+                        </button>
+                    </div>
+                    
+                    <div class="flex justify-center pt-6">
+                        <button type="submit" id="analyze-btn" class="bg-gradient-to-r from-neon-green to-neon-blue text-white px-8 py-4 rounded-full font-bold text-lg hover:scale-105 transition-transform animate-glow">
+                            🔮 Decode My Culture
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading-section" class="hidden max-w-4xl mx-auto text-center">
+            <div class="glass-card rounded-3xl p-12 neon-border">
+                <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-neon-pink mx-auto mb-6"></div>
+                <h3 class="text-2xl font-bold text-white mb-4">Decoding Your Cultural DNA...</h3>
+                <p class="text-white/70">Analyzing patterns, uncovering biases, and mapping your taste clusters</p>
+            </div>
+        </div>
+
+        <!-- Results Section (hidden by default, shown after analysis) -->
+        <div id="results-section" class="hidden max-w-6xl mx-auto mt-12">
+            <div class="glass-card rounded-3xl p-8 neon-border">
+                <h3 class="text-3xl font-bold text-white mb-6 text-center">Your Cultural Insights</h3>
+                <div id="user-entities" class="flex flex-wrap gap-3 justify-center mb-8"></div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="insight-card" data-category="clusters">
+                        <h4 class="text-2xl font-semibold text-neon-pink mb-4 text-center">🎯 Personality Clusters</h4>
+                        <div id="clusters-content" class="text-white"></div>
+                    </div>
+                    <div class="insight-card" data-category="biases">
+                        <h4 class="text-2xl font-semibold text-neon-blue mb-4 text-center">🧠 Cognitive Biases</h4>
+                        <div id="biases-content" class="text-white"></div>
+                    </div>
+                    <div class="insight-card" data-category="narratives">
+                        <h4 class="text-2xl font-semibold text-neon-purple mb-4 text-center">📖 Cultural Narratives</h4>
+                        <div id="narratives-content" class="text-white"></div>
+                    </div>
+                    <div class="insight-card" data-category="recommendations">
+                        <h4 class="text-2xl font-semibold text-neon-green mb-4 text-center">💡 Recommendations</h4>
+                        <div id="recommendations-content" class="text-white"></div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-8">
+                    <button id="reset-btn" class="bg-gradient-to-r from-neon-pink to-neon-blue text-white px-8 py-4 rounded-full font-bold text-lg hover:scale-105 transition-transform">
+                        🔄 Start Over
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let entityCount = 0;
+        const maxEntities = 5;
+
+        // Initialize the form
+        function initializeForm() {
+            addEntityInput();
+            addEntityInput();
+        }
+
+        // Add entity input field
+        function addEntityInput() {
+            if (entityCount >= maxEntities) return;
+            
+            const container = document.getElementById('entities-container');
+            const entityDiv = document.createElement('div');
+            entityDiv.className = 'glass-card rounded-2xl p-6 neon-border animate-slide-up';
+            entityDiv.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-white font-semibold mb-2">Name/Handle</label>
+                        <input type="text" name="entity_${entityCount}_name" required 
+                               class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/50 focus:outline-none focus:border-neon-pink focus:ring-2 focus:ring-neon-pink/20"
+                               placeholder="e.g., @username, Brand Name, Movie Title">
+                    </div>
+                    <div>
+                        <label class="block text-white font-semibold mb-2">Type</label>
+                        <select name="entity_${entityCount}_type" required
+                                class="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white focus:outline-none focus:border-neon-pink focus:ring-2 focus:ring-neon-pink/20">
+                            <option value="">Select type...</option>
+                            <option value="person">Person/Influencer</option>
+                            <option value="brand">Brand</option>
+                            <option value="movie">Movie</option>
+                            <option value="tv_show">TV Show</option>
+                            <option value="podcast">Podcast</option>
+                            <option value="book">Book</option>
+                            <option value="artist">Artist</option>
+                            <option value="video_game">Video Game</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button type="button" onclick="removeEntity(this)" 
+                                class="w-full px-4 py-3 rounded-xl bg-red-500/20 border border-red-500/30 text-red-300 hover:bg-red-500/30 transition-colors">
+                            Remove
+                        </button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(entityDiv);
+            entityCount++;
+            
+            // Update add button visibility
+            document.getElementById('add-entity').style.display = entityCount >= maxEntities ? 'none' : 'block';
+        }
+
+        // Remove entity input
+        function removeEntity(button) {
+            button.closest('.glass-card').remove();
+            entityCount--;
+            document.getElementById('add-entity').style.display = 'block';
+        }
+
+        // Handle form submission
+        document.getElementById('taste-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Collect form data
+            const entities = [];
+            const formData = new FormData(this);
+            
+            for (let i = 0; i < entityCount; i++) {
+                const name = formData.get(`entity_${i}_name`);
+                const type = formData.get(`entity_${i}_type`);
+                if (name && type) {
+                    entities.push({ name, type });
+                }
+            }
+            
+            if (entities.length < 2) {
+                alert('Please add at least 2 entities to analyze.');
+                return;
+            }
+            
+            // Show loading state
+            document.getElementById('input-section').classList.add('hidden');
+            document.getElementById('loading-section').classList.remove('hidden');
+            
+            try {
+                const response = await fetch('/insights', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ entities })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    displayResults(data);
+                } else {
+                    throw new Error(data.error || 'Failed to get insights');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error: ' + error.message);
+                document.getElementById('input-section').classList.remove('hidden');
+                document.getElementById('loading-section').classList.add('hidden');
+            }
+        });
+
+        // Format insight item based on data structure
+        function formatInsightItem(item) {
+            // Handle both old format (strings) and new format (objects with name/description)
+            if (typeof item === 'string') {
+                return `<div class="insight-item">
+                    <div class="insight-description">${item}</div>
+                </div>`;
+            } else if (typeof item === 'object' && item.name) {
+                return `<div class="insight-item">
+                    <div class="insight-title">${item.name}</div>
+                    <div class="insight-description">${item.description || ''}</div>
+                </div>`;
+            } else {
+                // Fallback for any other format
+                return `<div class="insight-item">
+                    <div class="insight-description">${JSON.stringify(item)}</div>
+                </div>`;
+            }
+        }
+
+        // Display results
+        function displayResults(data) {
+            document.getElementById('loading-section').classList.add('hidden');
+            document.getElementById('results-section').classList.remove('hidden');
+            
+            // Display user entities
+            const userEntitiesContainer = document.getElementById('user-entities');
+            userEntitiesContainer.innerHTML = data.user_entities.map(entity => 
+                `<span class="px-4 py-2 bg-white/10 rounded-full text-white border border-white/20">
+                    ${entity.name} (${entity.type})
+                </span>`
+            ).join('');
+            
+            // Display insights with staggered animation
+            const insights = data.insights;
+            const insightCards = document.querySelectorAll('.insight-card');
+            
+            insightCards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    card.style.transition = 'all 0.6s ease';
+                    
+                    setTimeout(() => {
+                        const category = card.dataset.category;
+                        const content = insights[category];
+                        
+                        if (content) {
+                            const contentElement = card.querySelector(`#${category}-content`);
+                            if (Array.isArray(content)) {
+                                contentElement.innerHTML = content.map(item => 
+                                    formatInsightItem(item)
+                                ).join('');
+                            } else {
+                                contentElement.innerHTML = formatInsightItem(content);
+                            }
+                        }
+                        
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 100);
+                }, index * 200);
+            });
+            
+            // Scroll to results
+            document.getElementById('results-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Reset functionality
+        document.getElementById('reset-btn').addEventListener('click', function() {
+            document.getElementById('results-section').classList.add('hidden');
+            document.getElementById('input-section').classList.remove('hidden');
+            document.getElementById('taste-form').reset();
+            document.getElementById('entities-container').innerHTML = '';
+            entityCount = 0;
+            initializeForm();
+        });
+
+        // Add entity button
+        document.getElementById('add-entity').addEventListener('click', addEntityInput);
+
+        // Initialize the form on page load
+        document.addEventListener('DOMContentLoaded', initializeForm);
+    </script>
+</body>
+</html>
