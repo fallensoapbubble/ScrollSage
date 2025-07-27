@@ -232,7 +232,7 @@ def calltoAPI(obj):
     print("needed", obj)
     print("="*50)
     
-    GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+    GEM_KEY = os.getenv('GEMINI_API_KEY')
     
     try:
         generator = EntityInsightsGenerator(GEM_KEY)
